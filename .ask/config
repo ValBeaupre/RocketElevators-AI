@@ -1,0 +1,44 @@
+{
+  "deploy_settings": {
+    "default": {
+      "skill_id": "amzn1.ask.skill.90ca0e33-3e8a-4cf1-9fe9-1d7556b8bc4b",
+      "was_cloned": false,
+      "merge": {
+        "manifest": {
+          "apis": {
+            "custom": {
+              "endpoint": {
+                "uri": "arn:aws:lambda:us-east-1:482252717892:function:ask-custom-RocketElevators-AI-default"
+              }
+            }
+          }
+        }
+      },
+      "in_skill_products": [],
+      "resources": {
+        "manifest": {
+          "eTag": "de2981ede8d969f4b43c93da63b9bf2b"
+        },
+        "interactionModel": {
+          "en-US": {
+            "eTag": "1737ebd31ad96469033db095032a351c"
+          }
+        },
+        "lambda": [
+          {
+            "alexaUsage": [
+              "custom/default"
+            ],
+            "arn": "arn:aws:lambda:us-east-1:482252717892:function:ask-custom-RocketElevators-AI-default",
+            "awsRegion": "us-east-1",
+            "codeUri": "lambda/custom",
+            "functionName": "ask-custom-RocketElevators-AI-default",
+            "handler": "index.handler",
+            "revisionId": "b041d793-78f2-4620-bf82-40428b47e135",
+            "runtime": "nodejs8.10"
+          }
+        ]
+      }
+    }
+  }
+}
