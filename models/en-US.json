@@ -17,7 +17,7 @@
           "samples": []
         },
         {
-          "name": "GetRemoteDataIntent",
+          "name": "GetRocketElevatorsStatusIntent",
           "slots": [],
           "samples": ["what's going on", "what's new"]
         }

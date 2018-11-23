@@ -9,25 +9,64 @@ const GetRemoteDataHandler = {
       handlerInput.requestEnvelope.request.type === "LaunchRequest" ||
       (handlerInput.requestEnvelope.request.type === "IntentRequest" &&
         handlerInput.requestEnvelope.request.intent.name ===
-          "GetRemoteDataIntent")
+          "GetRocketElevatorsStatusIntent")
     );
   },
   async handle(handlerInput) {
     let outputSpeech = "";
 
-    const totalElevAPI = await getRemoteData(
-      "https://rocketelevatorapi.azure-api.net/api/elevators"
+    const totalElevatorsAPI = await getRemoteData(
+      "https://rocketfoundationrestapi.azurewebsites.net/api/elevators/list"
     );
-    const totalElev = Object.keys(JSON.parse(totalElevAPI)).length;
+    const totalElev = Object.keys(JSON.parse(totalElevatorsAPI)).length;
     outputSpeech += `There are currently ${totalElev} elevators deployed in the `;
 
     const totalBuildingsAPI = await getRemoteData(
-      "https://rocketelevatorapi.azure-api.net/api/buildings/all"
+      "https://rocketfoundationrestapi.azurewebsites.net/api/buildings/all"
     );
     const totalBuild = Object.keys(JSON.parse(totalBuildingsAPI)).length;
-    outputSpeech += `${totalBuild} buildings of yours `;
+    outputSpeech += `${totalBuild} buildings of your `;
 
-    return handlerInput.responseBuilder.speak(outputSpeech).getResponse();
+    const totalCustomersAPI = await getRemoteData(
+      "https://rocketfoundationrestapi.azurewebsites.net/api/customers/all"
+    );
+    const totalCust = Object.keys(JSON.parse(totalCustomersAPI)).length;
+    outputSpeech += `${totalCust} customers.`;
+
+    // const elevatorsStatus = await getRemoteData(
+    //   "https://rocketfoundationrestapi.azurewebsites.net/api/buildings/all"
+    // );
+    // const elevNotRunning = Object.keys(JSON.parse(elevatorsStatus)).length;
+    // outputSpeech += `Currently, ${elevNotRunning} elevators are not in Running Status and are being serviced.`;
+
+    // const totalBatteriesAPI = await getRemoteData(
+    //   "https://rocketfoundationrestapi.azurewebsites.net/api/buildings/all"
+    // );
+    // const totalBatt = Object.keys(JSON.parse(totalBatteriesAPI)).length;
+    // outputSpeech += `${totalBatt} Battreries are deployed across `;
+
+    // const totalCitiesAPI = await getRemoteData(
+    //   "https://rocketfoundationrestapi.azurewebsites.net/api/buildings/all"
+    // );
+    // const totalCities = Object.keys(JSON.parse(totalCitiesAPI)).length;
+    // outputSpeech += `${totalCities} cities.`;
+
+    // const totalQuotesAPI = await getRemoteData(
+    //   "https://rocketfoundationrestapi.azurewebsites.net/api/buildings/all"
+    // );
+    // const totalQuotes = Object.keys(JSON.parse(totalQuotesAPI)).length;
+    // outputSpeech += `On another note you currently have ${totalQuotes} quotes awaiting processing.`;
+
+    // const totalLeadsAPI = await getRemoteData(
+    //   "https://rocketfoundationrestapi.azurewebsites.net/api/buildings/all"
+    // );
+    // const totalLeads = Object.keys(JSON.parse(totalLeadsAPI)).length;
+    // outputSpeech += `You also have ${totalLeads} leads in your contact requests.`;
+
+    return handlerInput.responseBuilder
+      .speak(outputSpeech)
+      .reprompt(outputSpeech)
+      .getResponse();
   }
 };
 
@@ -61,7 +100,10 @@ const CancelAndStopIntentHandler = {
   handle(handlerInput) {
     const speechText = "Goodbye!";
 
-    return handlerInput.responseBuilder.speak(speechText).getResponse();
+    return handlerInput.responseBuilder
+      .speak(speechText)
+      .reprompt(speechText)
+      .getResponse();
   }
 };
 
