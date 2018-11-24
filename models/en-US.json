@@ -2,7 +2,6 @@
   "interactionModel": {
     "languageModel": {
       "invocationName": "rocket elevators",
-      "types": [],
       "intents": [
         {
           "name": "AMAZON.CancelIntent",
@@ -19,9 +18,30 @@
         {
           "name": "GetRocketElevatorsStatusIntent",
           "slots": [],
-          "samples": ["what's going on", "what's new"]
+          "samples": [
+            "What is going on at Rocket Elevators",
+            "What's going on at Rocket Elevators",
+            "What's happening at Rocket Elevators",
+            "What is happening at Rocket Elevators",
+            "What is new at Rocket Elevators",
+            "What's new at Rocket Elevators"
+          ]
+        },
+        {
+          "name": "GetElevatorStatusIntent",
+          "slots": [
+            {
+              "name": "id",
+              "type": "AMAZON.NUMBER"
+            }
+          ],
+          "samples": [
+            "What is the status of the elevator {id}",
+            "What's the status of the elevator {id}"
+          ]
         }
-      ]
+      ],
+      "types": []
     }
   }
 }

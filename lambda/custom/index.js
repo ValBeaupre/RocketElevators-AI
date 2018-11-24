@@ -3,20 +3,34 @@
 
 const Alexa = require("ask-sdk-core");
 
+const GetGreetingsHandler = {
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === "LaunchRequest";
+  },
+
+  handle(handlerInput) {
+    let outputSpeech = "Greetings!";
+
+    return handlerInput.responseBuilder
+      .speak(outputSpeech)
+      .reprompt(outputSpeech)
+      .getResponse();
+  }
+};
+
 const GetRemoteDataHandler = {
   canHandle(handlerInput) {
     return (
-      handlerInput.requestEnvelope.request.type === "LaunchRequest" ||
-      (handlerInput.requestEnvelope.request.type === "IntentRequest" &&
-        handlerInput.requestEnvelope.request.intent.name ===
-          "GetRocketElevatorsStatusIntent")
+      handlerInput.requestEnvelope.request.type === "IntentRequest" &&
+      handlerInput.requestEnvelope.request.intent.name ===
+        "GetRocketElevatorsStatusIntent"
     );
   },
   async handle(handlerInput) {
     let outputSpeech = "";
 
     const totalElevatorsAPI = await getRemoteData(
-      "https://rocketfoundationrestapi.azurewebsites.net/api/elevators/list"
+      "https://rocketfoundationrestapi.azurewebsites.net/api/elevators/all"
     );
     const totalElev = Object.keys(JSON.parse(totalElevatorsAPI)).length;
     outputSpeech += `There are currently ${totalElev} elevators deployed in the `;
@@ -31,37 +45,71 @@ const GetRemoteDataHandler = {
       "https://rocketfoundationrestapi.azurewebsites.net/api/customers/all"
     );
     const totalCust = Object.keys(JSON.parse(totalCustomersAPI)).length;
-    outputSpeech += `${totalCust} customers.`;
+    outputSpeech += `${totalCust} customers. `;
 
-    // const elevatorsStatus = await getRemoteData(
-    //   "https://rocketfoundationrestapi.azurewebsites.net/api/buildings/all"
-    // );
-    // const elevNotRunning = Object.keys(JSON.parse(elevatorsStatus)).length;
-    // outputSpeech += `Currently, ${elevNotRunning} elevators are not in Running Status and are being serviced.`;
+    const elevatorsStatus = await getRemoteData(
+      "https://rocketfoundationrestapi.azurewebsites.net/api/elevators/list"
+    );
+    const elevNotRunning = Object.keys(JSON.parse(elevatorsStatus)).length;
+    outputSpeech += ` Currently, ${elevNotRunning} elevators are not in Running Status and are being serviced. `;
 
-    // const totalBatteriesAPI = await getRemoteData(
-    //   "https://rocketfoundationrestapi.azurewebsites.net/api/buildings/all"
-    // );
-    // const totalBatt = Object.keys(JSON.parse(totalBatteriesAPI)).length;
-    // outputSpeech += `${totalBatt} Battreries are deployed across `;
+    const totalBatteriesAPI = await getRemoteData(
+      "https://rocketfoundationrestapi.azurewebsites.net/api/batteries/all"
+    );
+    const totalBatt = Object.keys(JSON.parse(totalBatteriesAPI)).length;
+    outputSpeech += ` ${totalBatt} Battreries are deployed across `;
 
-    // const totalCitiesAPI = await getRemoteData(
-    //   "https://rocketfoundationrestapi.azurewebsites.net/api/buildings/all"
-    // );
-    // const totalCities = Object.keys(JSON.parse(totalCitiesAPI)).length;
-    // outputSpeech += `${totalCities} cities.`;
+    const totalCitiesAPI = await getRemoteData(
+      "https://rocketfoundationrestapi.azurewebsites.net/api/addresses/cities"
+    );
+    const totalCities = Object.keys(JSON.parse(totalCitiesAPI)).length;
+    outputSpeech += `${totalCities} cities. `;
 
-    // const totalQuotesAPI = await getRemoteData(
-    //   "https://rocketfoundationrestapi.azurewebsites.net/api/buildings/all"
-    // );
-    // const totalQuotes = Object.keys(JSON.parse(totalQuotesAPI)).length;
-    // outputSpeech += `On another note you currently have ${totalQuotes} quotes awaiting processing.`;
+    const totalQuotesAPI = await getRemoteData(
+      "https://rocketfoundationrestapi.azurewebsites.net/api/quotes/all"
+    );
+    const totalQuotes = Object.keys(JSON.parse(totalQuotesAPI)).length;
+    outputSpeech += ` On another note, you currently have ${totalQuotes} quotes awaiting processing. `;
 
-    // const totalLeadsAPI = await getRemoteData(
-    //   "https://rocketfoundationrestapi.azurewebsites.net/api/buildings/all"
-    // );
-    // const totalLeads = Object.keys(JSON.parse(totalLeadsAPI)).length;
-    // outputSpeech += `You also have ${totalLeads} leads in your contact requests.`;
+    const totalLeadsAPI = await getRemoteData(
+      "https://rocketfoundationrestapi.azurewebsites.net/api/leads/all"
+    );
+    const totalLeads = Object.keys(JSON.parse(totalLeadsAPI)).length;
+    outputSpeech += ` You also have ${totalLeads} leads in your contact requests. `;
+
+    return handlerInput.responseBuilder
+      .speak(outputSpeech)
+      .reprompt(outputSpeech)
+      .getResponse();
+  }
+};
+
+const GetElevatorStatusHandler = {
+  canHandle(handlerInput) {
+    return (
+      handlerInput.requestEnvelope.request.type === "IntentRequest" &&
+      handlerInput.requestEnvelope.request.intent.name ===
+        "GetElevatorStatusIntent"
+    );
+  },
+  async handle(handlerInput) {
+    let elevatorNumber =
+      handlerInput.requestEnvelope.request.intent.slots.id.value;
+    let outputSpeech = "";
+
+    await getRemoteData(
+      `https://rocketfoundationrestapi.azurewebsites.net/api/elevators/${elevatorNumber}`
+    ).then(response => {
+      if (response === null) {
+        outputSpeech =
+          "The chosen elevator number is invalid. Please choose another elevator number. ";
+      } else {
+        const data = JSON.parse(response);
+        outputSpeech += ` The elevator number ${elevatorNumber} is currently ${
+          data.status
+        } . `;
+      }
+    });
 
     return handlerInput.responseBuilder
       .speak(outputSpeech)
@@ -155,7 +203,9 @@ const skillBuilder = Alexa.SkillBuilders.custom();
 
 exports.handler = skillBuilder
   .addRequestHandlers(
+    GetGreetingsHandler,
     GetRemoteDataHandler,
+    GetElevatorStatusHandler,
     HelpIntentHandler,
     CancelAndStopIntentHandler,
     SessionEndedRequestHandler
